@@ -2,9 +2,9 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-24 11:13:39
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-25 12:16:43
+ * @LastEditTime: 2024-05-10 14:34:27
  * @FilePath: \shop-admin\src\api\other.js
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @Description: 其他模块
  */
 
 import request from '@/utils/request';

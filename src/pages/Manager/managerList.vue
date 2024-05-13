@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-22 21:27:56
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-27 20:40:01
+ * @LastEditTime: 2024-05-11 14:46:46
  * @FilePath: \shop-admin\src\pages\Other\noticeList.vue
  * @Description: 管理员管理
 -->
@@ -11,15 +11,11 @@
     <el-card shadow="never" class="flex-1 flex flex-col border-0">
 
       <!-- 搜索 -->
-      <el-form :model="pageConfig" label-width="80px" label-suffix="：" class="flex items-center justify-between mb-3">
-        <el-form-item label="关键词">
+      <Search class="flex items-center mb-3" :model="pageConfig" @search="handleSearch" @reset="handleReset">
+        <SearchItem label="关键词" class="mr-5">
           <el-input v-model="pageConfig.keyword" size="small" placeholder="请输入管理员昵称" clearable />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" size="small" @click="handleSearch">搜索</el-button>
-          <el-button size="small" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+        </SearchItem>
+      </Search>
 
       <!-- 新增刷新 -->
       <ListHeader @add="handleAddManager" @refresh="onRefresh" />
@@ -77,29 +73,8 @@
         <el-pagination background layout="prev, pager, next" :total="pageConfig.total" @change="onPageChange" />
       </div>
 
-      <drawer-model ref="formDrawerRef" :title="drawerType === 'add' ? '新增管理员' : '修改管理员'" destroyOnClose
-        @submit="handleOk">
-        <el-form ref="formRef" :rules="rules" :model="formConfig" label-width="120px" label-position="left"
-          label-suffix="：">
-          <el-form-item prop="username" label="用户名">
-            <el-input placeholder="请输入用户名" v-model="formConfig.username" />
-          </el-form-item>
-          <el-form-item prop="password" label="密码">
-            <el-input placeholder="请输入密码" v-model="formConfig.password" />
-          </el-form-item>
-          <el-form-item prop="avatar" label="头像">
-            <upload-avatar v-model="formConfig.avatar" />
-          </el-form-item>
-          <el-form-item prop="role_id" label="所属角色">
-            <el-select v-model="formConfig.role_id" placeholder="请选择所属角色" style="width: 240px">
-              <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id" />
-            </el-select>
-          </el-form-item>
-          <el-form-item prop="status" label="状态">
-            <el-switch :active-value="1" :inactive-value="0" v-model="formConfig.status" />
-          </el-form-item>
-        </el-form>
-      </drawer-model>
+      <!-- 新增/更新 -->
+      <ManagerModel ref="formDrawerRef" :title="drawerType" :roleList="roleList" :create="onOk" :update="onUpdate" />
     </el-card>
   </div>
 </template>
@@ -107,9 +82,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
+import Search from '@/components/Search/index.vue';
+import SearchItem from '@/components/Search/SearchItem.vue';
 import ListHeader from '@/components/ListHeader/index.vue';
-import DrawerModel from '@/components/DrawerModel/index.vue';
-import UploadAvatar from './components/UploadAvatar.vue';
+import ManagerModel from './components/ManagerModel.vue';
 
 import {
   getManagerList,
@@ -119,7 +95,6 @@ import {
   deleteManager
 } from '@/api/manager';
 import useTable from '@/hooks/useTable';
-import useForm from '@/hooks/useForm';
 
 // 管理员列表
 const manages = ref([]);
@@ -179,34 +154,6 @@ const {
   }
 });
 
-// 表单相关配置
-const {
-  formRef,
-  formConfig,
-  rules,
-  resetForm
-} = useForm({
-  formData: {
-    id: 0,
-    username: '',
-    password: '',
-    role_id: '',
-    status: 1,
-    avatar: ''
-  },
-  rules: {
-    username: [
-      { required: true, message: '请输入用户名', trigger: 'blur' }
-    ],
-    password: [
-      { required: true, message: '请输入密码', trigger: 'blur' }
-    ],
-    role_id: [
-      { required: true, message: '请选择所属角色', trigger: 'blur' }
-    ]
-  }
-});
-
 // 搜索
 const handleSearch = () => initLoadList();
 
@@ -219,59 +166,20 @@ const handleReset = () => {
 // 新增管理员
 const handleAddManager = () => {
   drawerType.value = 'add';
-  resetForm({ username: '', password: '', role_id: '', status: 1, avatar: '' });
+  formDrawerRef.value.handleResetForm({ username: '', password: '', role_id: '', status: 1, avatar: '' });
   formDrawerRef.value.open();
 }
 
 // 管理员更新
 const handleManagerUpdate = item => {
   drawerType.value = 'update';
-  resetForm(item);
+  formDrawerRef.value.handleResetForm(item);
   formDrawerRef.value.open();
 }
 
 // 删除管理员
 const handleManagerDelete = item => {
   onDelete?.({ id: item.id });
-}
-
-// 提交
-const handleOk = () => {
-  formRef.value.validate(valid => {
-
-    if (!valid) return false;
-
-    formDrawerRef.value.showLoading();
-
-    // 添加
-    if (drawerType.value === 'add') {
-
-      onOk?.({
-        username: formConfig.username,
-        password: formConfig.password,
-        role_id: formConfig.role_id,
-        status: formConfig.status,
-        avatar: formConfig.avatar
-      });
-
-    }
-    // 更新
-    else {
-
-      onUpdate?.({
-        id: formConfig.id,
-        username: formConfig.username,
-        password: formConfig.password,
-        role_id: formConfig.role_id,
-        status: formConfig.status,
-        avatar: formConfig.avatar
-      });
-
-    }
-
-    formDrawerRef.value.close();
-
-  });
 }
 
 // 挂在获取列表

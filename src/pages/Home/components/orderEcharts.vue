@@ -25,8 +25,6 @@ import {
   getOrderCount
 } from '@/api/home';
 
-
-const store = useStore();
 // 图标
 let myChart;
 // 监听元素等比例缩放

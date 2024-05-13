@@ -2,14 +2,14 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-21 17:54:58
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-25 17:14:01
+ * @LastEditTime: 2024-04-29 20:15:17
  * @FilePath: \shop-admin\src\pages\Layout\components\FHeader.vue
  * @Description: 主内容
 -->
 <template>
   <el-main class="main-page-container">
     <f-tag-list></f-tag-list>
-    <div class="page-content-container">
+    <div class="page-content-container" ref="main">
       <router-view v-slot="{ Component }">
         <transition name="fade">
           <keep-alive :max="10">
@@ -22,7 +22,19 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { useResizeObserver } from '@vueuse/core'
 import FTagList from './FTagList.vue';
+
+
+
+const main = ref(null);
+
+useResizeObserver(main, entries => {
+  const [entry] = entries;
+  const { width } = entry.contentRect;
+})
+
 </script>
 
 

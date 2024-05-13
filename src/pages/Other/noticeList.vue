@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-22 21:27:56
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-27 20:00:49
+ * @LastEditTime: 2024-05-11 14:21:12
  * @FilePath: \shop-admin\src\pages\Other\noticeList.vue
  * @Description: 公告管理
 -->
@@ -35,18 +35,8 @@
         <el-pagination background layout="prev, pager, next" :total="pageConfig.total" @change="onPageChange" />
       </div>
 
-      <drawer-model ref="formDrawerRef" :title="drawerType === 'add' ? '新增公告' : '修改公告'" destroyOnClose
-        @submit="handleOk">
-        <el-form ref="formRef" :rules="rules" :model="formConfig" label-width="120px" label-position="left"
-          label-suffix="：">
-          <el-form-item prop="title" label="公告标题">
-            <el-input placeholder="请输入公告标题" v-model="formConfig.title" />
-          </el-form-item>
-          <el-form-item prop="content" label="公告内容">
-            <el-input type="textarea" placeholder="请输入公告内容" :rows="5" v-model="formConfig.content" />
-          </el-form-item>
-        </el-form>
-      </drawer-model>
+      <!-- 新增/更新 -->
+      <NoticeModel ref="formDrawerRef" :title="drawerType" :create="onOk" :update="onUpdate" />
     </el-card>
   </div>
 </template>
@@ -56,10 +46,9 @@ import { ref, onMounted } from 'vue';
 import { noticeList, addNotice, deleteNotice, updateNotice } from '@/api/other';
 
 import ListHeader from '@/components/ListHeader/index.vue';
-import DrawerModel from '@/components/DrawerModel/index.vue';
+import NoticeModel from './components/NoticeModel.vue';
 
 import useTable from '@/hooks/useTable';
-import useForm from '@/hooks/useForm';
 
 
 // 公告列表
@@ -96,31 +85,10 @@ const {
   }
 });
 
-const {
-  formRef,
-  formConfig,
-  rules,
-  resetForm
-} = useForm({
-  formData: {
-    id: 0,
-    title: '',
-    content: ''
-  },
-  rules: {
-    title: [
-      { required: true, message: '请输入公告标题', trigger: 'blur' }
-    ],
-    content: [
-      { required: true, message: '请输入公告内容', trigger: 'blur' }
-    ]
-  }
-});
-
 // 新增公告
 const handleAddNotice = () => {
   drawerType.value = 'add';
-  resetForm({ title: '', content: '' });
+  formDrawerRef.value.handleResetForm({ title: '', content: '' });
   formDrawerRef.value.open();
 }
 
@@ -128,37 +96,8 @@ const handleAddNotice = () => {
 const handleNoticeUpdate = item => {
   const { id, title, content } = item;
   drawerType.value = 'update';
-  resetForm({ id, title, content });
+  formDrawerRef.value.handleResetForm({ id, title, content });
   formDrawerRef.value.open();
-}
-
-// 提交
-const handleOk = () => {
-  formRef.value.validate(valid => {
-
-    if (!valid) return false;
-
-    formDrawerRef.value.showLoading();
-
-    if (drawerType.value === 'add') {
-
-      onOk?.({
-        title: formConfig.title,
-        content: formConfig.content
-      });
-
-    }
-    else {
-
-      onUpdate?.({
-        id: formConfig.id,
-        title: formConfig.title,
-        content: formConfig.content
-      });
-    }
-
-    formDrawerRef.value.close();
-  });
 }
 
 // 删除公告

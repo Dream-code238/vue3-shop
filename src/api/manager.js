@@ -35,7 +35,9 @@ export const getManagerList = data => {
 
   const parms = [];
   for (let key in otherPames) {
-    parms.push(`${key}=${otherPames[key]}&`);
+    if (otherPames[key]) {
+      parms.push(`${key}=${otherPames[key]}&`);
+    }
   }
 
   const url = `?${parms.join('&')}}`;

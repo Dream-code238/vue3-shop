@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-21 21:25:53
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-25 18:44:50
+ * @LastEditTime: 2024-05-10 18:34:10
  * @FilePath: \shop-admin\src\components\DrawerModel.vue
  * @Description: 抽屉弹框
 -->
@@ -47,7 +47,7 @@ const props = defineProps({
     type: Boolean,
     default: true
   }
-})
+});
 
 // 加载loading
 const showLoading = () => loading.value = true;

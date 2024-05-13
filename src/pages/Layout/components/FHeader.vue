@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-21 17:54:58
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-25 17:14:01
+ * @LastEditTime: 2024-04-28 17:37:25
  * @FilePath: \shop-admin\src\pages\Layout\components\FHeader.vue
  * @Description: 头部
 -->
@@ -90,10 +90,10 @@ const { handleLogout } = useLogout();
 // 侧边栏折叠
 const handleCollapse = () => {
   // 侧边栏宽度
-  const width = !store.state.isCollapse ? '64px' : '250px';
+  const width = !store.state.manager.isCollapse ? '64px' : '250px';
   store.commit('manager/SET_ASIDEWIDTH', width);
 
-  store.commit('manager/SET_COLLAPSE', !store.state.isCollapse);
+  store.commit('manager/SET_COLLAPSE', !store.state.manager.isCollapse);
 
 }
 

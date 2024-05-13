@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-22 21:27:56
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-27 19:56:05
+ * @LastEditTime: 2024-05-11 14:50:07
  * @FilePath: \shop-admin\src\pages\Other\noticeList.vue
  * @Description: 管理员管理
 -->
@@ -50,55 +50,9 @@
           </template>
         </el-tree>
       </div>
-
-
-      <drawer-model ref="formDrawerRef" :title="drawerType === 'add' ? '新增菜单权限' : '修改菜单权限'" destroyOnClose
-        @submit="handleOk">
-        <el-form ref="formRef" :rules="rules" :model="formConfig" label-width="120px" label-position="left"
-          label-suffix="：">
-
-          <el-form-item prop="rule_id" label="上级菜单">
-            <el-cascader v-model="formConfig.rule_id" placeholder="请选择上级菜单" :options="ruleOptions"
-              :props="{ label: 'name', value: 'id', children: 'child', checkStrictly: true, emitPath: false }"
-              clearable />
-          </el-form-item>
-
-          <el-form-item prop="menu" label="菜单/规则">
-            <el-radio-group v-model="formConfig.menu">
-              <el-radio :value="1" border>菜单</el-radio>
-              <el-radio :value="0" border>权限</el-radio>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item prop="name" label="名称">
-            <el-input placeholder="请输入名称" v-model="formConfig.name" />
-          </el-form-item>
-
-          <el-form-item prop="condition" label="后端规则" v-if="!formConfig.menu">
-            <el-input placeholder="请输入后端规则" v-model="formConfig.condition" />
-          </el-form-item>
-
-          <el-form-item prop="icon" label="菜单图标" v-if="formConfig.menu">
-            <icon-select v-model="formConfig.icon" />
-          </el-form-item>
-
-          <el-form-item prop="method" label="请求方式" v-if="!formConfig.menu">
-            <el-select v-model="formConfig.method" placeholder="请选择请求方式">
-              <el-option v-for="item in methods" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item prop="frontpath" label="前端路由" v-if="formConfig.menu && formConfig.rule_id">
-            <el-input placeholder="请输入前端路由" v-model="formConfig.frontpath" />
-          </el-form-item>
-
-          <el-form-item prop="order" label="排序">
-            <el-input-number :min="1" :max="1000" v-model="formConfig.order" />
-          </el-form-item>
-
-        </el-form>
-      </drawer-model>
-
+      <!-- 新增/更新 -->
+      <AccessModel ref="formDrawerRef" :title="drawerType" :ruleOptions="ruleOptions" :create="onOk"
+        :update="onUpdate" />
     </el-card>
   </div>
 </template>
@@ -107,8 +61,6 @@
 import { ref, onMounted } from 'vue';
 
 import ListHeader from '@/components/ListHeader/index.vue';
-import DrawerModel from '@/components/DrawerModel/index.vue';
-import IconSelect from './components/IconSelect.vue';
 
 import {
   getRuleList,
@@ -117,9 +69,8 @@ import {
   deleteRule,
   updateRuleStatus
 } from '@/api/manager';
-import { methods } from '@/contants';
 import useTable from '@/hooks/useTable';
-import useForm from '@/hooks/useForm';
+import AccessModel from './components/AccessModel.vue';
 
 // 菜单权限列表
 const treeData = ref([]);
@@ -163,63 +114,17 @@ const {
   }
 });
 
-const {
-  formRef,
-  formConfig,
-  rules,
-  resetForm
-} = useForm({
-  formData: {
-    rule_id: 0,
-    menu: 0,
-    name: '',
-    condition: '',
-    method: '',
-    status: 1,
-    order: 20,
-    icon: '',
-    frontpath: ''
-  },
-  rules: {
-    rule_id: [
-      { required: true, message: '请选择上级菜单', trigger: 'blur' }
-    ],
-    menu: [
-      { required: true, message: '请选择菜单/规则', trigger: 'blur' }
-    ],
-    name: [
-      { required: true, message: '请输入名称', trigger: 'blur' }
-    ],
-    condition: [
-      { required: true, message: '请输入后端规则', trigger: 'blur' }
-    ],
-    icon: [
-      { required: true, message: '请选择菜单图标', trigger: 'blur' }
-    ],
-    method: [
-      { required: true, message: '请选择请求方式', trigger: 'blur' }
-    ],
-    frontpath: [
-      { required: true, message: '请输入前端路由', trigger: 'blur' }
-    ],
-    order: [
-      { required: true, message: '请输入排序', trigger: 'blur' }
-    ]
-  }
-});
-
-
 // 新增菜单权限
 const handleAddAccess = () => {
   drawerType.value = 'add';
-  resetForm({ rule_id: 0, menu: 0, name: '', condition: '', method: '', status: 1, order: 20, icon: '', frontpath: '' });
+  formDrawerRef.value.handleResetForm({ rule_id: 0, menu: 0, name: '', condition: '', method: '', status: 1, order: 20, icon: '', frontpath: '' });
   formDrawerRef.value.open();
 }
 
 // 更新菜单权限
 const handleAccessUpdate = item => {
   drawerType.value = 'update';
-  resetForm(item);
+  formDrawerRef.value.handleResetForm(item);
   formDrawerRef.value.open();
 }
 
@@ -227,7 +132,7 @@ const handleAccessUpdate = item => {
 const addChild = item => {
   const { id } = item;
   drawerType.value = 'add';
-  resetForm({ rule_id: id, menu: 0, name: '', condition: '', method: '', status: 1, order: 20, icon: '', frontpath: '' });
+  formDrawerRef.value.handleResetForm({ rule_id: id, menu: 0, name: '', condition: '', method: '', status: 1, order: 20, icon: '', frontpath: '' });
   formDrawerRef.value.open();
 }
 
@@ -235,49 +140,6 @@ const addChild = item => {
 const handleAccessDelete = item => {
   onDelete?.({ id: item.id });
 }
-
-const handleOk = () => {
-  formRef.value.validate(valid => {
-
-    if (!valid) return false;
-
-    formDrawerRef.value.showLoading();
-
-    // 添加
-    if (drawerType.value === 'add') {
-      onOk?.({
-        rule_id: formConfig.rule_id,
-        menu: formConfig.menu,
-        name: formConfig.name,
-        condition: formConfig.condition,
-        method: formConfig.method,
-        status: formConfig.status,
-        order: formConfig.order,
-        icon: formConfig.icon,
-        frontpath: formConfig.frontpath
-      });
-    }
-    // 更新
-    else {
-
-      onUpdate?.({
-        rule_id: formConfig.rule_id,
-        menu: formConfig.menu,
-        name: formConfig.name,
-        condition: formConfig.condition,
-        method: formConfig.method,
-        status: formConfig.status,
-        order: formConfig.order,
-        icon: formConfig.icon,
-        frontpath: formConfig.frontpath
-      });
-
-    }
-
-    formDrawerRef.value.close();
-
-  });
-};
 
 // 挂在获取列表
 onMounted(() => initLoadList());

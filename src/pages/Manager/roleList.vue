@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-22 21:22:40
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-27 22:45:50
+ * @LastEditTime: 2024-05-11 14:44:54
  * @FilePath: \shop-admin\src\pages\Manager\roleList.vue
  * @Description: 角色管理
 -->
@@ -44,24 +44,8 @@
         <el-pagination background layout="prev, pager, next" :total="pageConfig.total" @change="onPageChange" />
       </div>
 
-      <drawer-model ref="formDrawerRef" :title="drawerType === 'add' ? '新增角色' : '修改角色'" destroyOnClose
-        @submit="handleOk">
-        <el-form ref="formRef" :rules="rules" :model="formConfig" label-width="120px" label-position="left"
-          label-suffix="：">
-
-          <el-form-item prop="name" label="角色名称">
-            <el-input placeholder="请输入角色名称" v-model="formConfig.name" />
-          </el-form-item>
-
-          <el-form-item prop="desc" label="角色描述">
-            <el-input type="textarea" :rows="5" placeholder="请输入角色描述" v-model="formConfig.desc" />
-          </el-form-item>
-
-          <el-form-item prop="status" label="状态">
-            <el-switch :active-value="1" :inactive-value="0" v-model="formConfig.status" />
-          </el-form-item>
-        </el-form>
-      </drawer-model>
+      <!-- 新增/更新 -->
+      <RoleModel ref="formDrawerRef" :title="drawerType" :create="onOk" :update="onUpdate" />
 
       <drawer-model ref="formRuleRef" title="权限配置" destroyOnClose @submit="handleRuleOk">
         <el-tree-v2 ref="elTreeRef" :height="rHeight" :data="ruleList" :props="{ label: 'name', children: 'child' }"
@@ -91,6 +75,7 @@ import { ref, onMounted } from 'vue';
 
 import ListHeader from '@/components/ListHeader/index.vue';
 import DrawerModel from '@/components/DrawerModel/index.vue';
+import RoleModel from './components/RoleModel.vue';
 
 import {
   getRoleList,
@@ -102,7 +87,6 @@ import {
   updateRoleRule
 } from '@/api/manager';
 import useTable from '@/hooks/useTable';
-import useForm from '@/hooks/useForm';
 import usePassive from '@/hooks/usePassive';
 import { toast } from '@/utils/common';
 
@@ -158,77 +142,25 @@ const {
   }
 });
 
-// 表单相关配置
-const {
-  formRef,
-  formConfig,
-  rules,
-  resetForm
-} = useForm({
-  formData: {
-    id: 0,
-    name: '',
-    status: 1,
-    desc: ''
-  },
-  rules: {
-    name: [
-      { required: true, message: '请输入角色名称', trigger: 'blur' }
-    ]
-  }
-});
+
 
 // 新增角色
 const handleAddRole = () => {
   drawerType.value = 'add';
-  resetForm({ name: '', desc: '', status: 1 });
+  formDrawerRef.value.handleResetForm({ name: '', desc: '', status: 1 });
   formDrawerRef.value.open();
 }
 
 // 角色更新
 const handleRoleUpdate = item => {
   drawerType.value = 'update';
-  resetForm(item);
+  formDrawerRef.value.handleResetForm(item);
   formDrawerRef.value.open();
 }
 
 // 删除角色
 const handleRoleDelete = item => {
   onDelete?.({ id: item.id });
-}
-
-const handleOk = () => {
-  formRef.value.validate(valid => {
-
-    if (!valid) return false;
-
-    formDrawerRef.value.showLoading();
-
-    // 添加
-    if (drawerType.value === 'add') {
-
-      onOk?.({
-        name: formConfig.name,
-        desc: formConfig.desc,
-        status: formConfig.status
-      });
-
-    }
-    // 更新
-    else {
-
-      onUpdate?.({
-        id: formConfig.id,
-        name: formConfig.name,
-        desc: formConfig.desc,
-        status: formConfig.status
-      });
-
-    }
-
-    formDrawerRef.value.close();
-
-  });
 }
 
 const handleRoleRule = item => {

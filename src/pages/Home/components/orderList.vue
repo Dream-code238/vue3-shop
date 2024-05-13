@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-23 20:45:20
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-25 19:20:42
+ * @LastEditTime: 2024-04-29 15:38:55
  * @FilePath: \shop-admin\src\pages\Home\components\orderList.vue
  * @Description: 订单统计
 -->
@@ -57,16 +57,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
 
 import CountTo from '@/components/CountTo/index.vue';
 
 import {
   getOrderList
 } from '@/api/home';
-
-
-const store = useStore();
 
 const panelList = ref([]);
 

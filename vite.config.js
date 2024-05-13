@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-19 20:04:25
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-21 16:19:46
+ * @LastEditTime: 2024-05-13 11:19:13
  * @FilePath: \shop-admin\vite.config.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,7 +12,7 @@ import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import WindiCSS from 'vite-plugin-windicss';
+import windi from 'vite-plugin-windicss';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -40,6 +40,12 @@ export default defineConfig({
     Components({
       resolvers: [ElementPlusResolver()],
     }),
-    WindiCSS(),
+    windi({
+			config: path.resolve(__dirname, './windi.config.js'), // 指定配置文件目录
+			scan: {
+				dirs: ['.'], // 当前目录下所有文件
+				fileExtensions: ['vue', 'js'], // 同时启用扫描vue/js
+			},
+		}),
   ],
 })

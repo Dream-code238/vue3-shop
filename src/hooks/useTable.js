@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-26 15:58:21
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-28 12:02:43
+ * @LastEditTime: 2024-04-29 21:44:18
  * @FilePath: \shop-admin\src\hooks\useTableList.js
  * @Description: 通用列表配置
  */
@@ -23,7 +23,7 @@ const useTable = config => {
   } = config;
 
   // 列表
-  const tableRef = ref([]);
+  const tableRef = ref(null);
   // 抽屉弹框
   const formDrawerRef = ref(null);
   // 表单
@@ -106,6 +106,7 @@ const useTable = config => {
     // 额外参数
     const payload = initOtherParams({ payload: addApi?.payload, ...pageConfig, extraPayload: addApi?.extraPayload });
     // 调用接口
+    formDrawerRef.value.showLoading();
     const result = await addApi?.api({ ...data, ...payload })
       .then(() => initLoadList())
       .finally(() => formDrawerRef.value.hideLoading());
@@ -122,6 +123,7 @@ const useTable = config => {
     // 额外参数
     const payload = initOtherParams({ payload: updateApi?.payload, ...pageConfig, extraPayload: updateApi?.extraPayload });
     // 调用接口
+    formDrawerRef.value.showLoading();
     const result = await updateApi?.api({ ...data, ...payload })
       .then(() => initLoadList())
       .finally(() => formDrawerRef.value.hideLoading());
@@ -138,14 +140,14 @@ const useTable = config => {
     // 额外参数
     const payload = initOtherParams({ payload: deleteApi?.payload, ...pageConfig, extraPayload: deleteApi?.extraPayload })
     // 调用接口
+    
     const result = await deleteApi?.api({ ...data, ...payload })
       .then(() => {
-        if (tableRef.value) {
-          tableRef.value.clearSelection();
+        if (tableRef?.value) {
+          tableRef?.value?.clearSelection();
         }
         initLoadList();
-      })
-      .finally(() => formDrawerRef.value.hideLoading());
+      });
     // 获取成功以后将结果返回抛出
     deleteApi?.onSuccess && deleteApi?.onSuccess(result);
     toast('删除成功');

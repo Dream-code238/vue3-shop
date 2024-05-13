@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-22 16:19:17
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-28 12:03:28
+ * @LastEditTime: 2024-05-11 14:07:49
  * @FilePath: \shop-admin\src\pages\Shop\categoryList.vue
  * @Description: 规格管理
 -->
@@ -46,29 +46,7 @@
         <el-pagination background layout="prev, pager, next" :total="pageConfig.total" @change="onPageChange" />
       </div>
 
-      <drawer-model ref="formDrawerRef" :title="drawerType === 'add' ? '新增规格' : '修改规格'" destroyOnClose
-        @submit="handleOk">
-        <el-form ref="formRef" :rules="rules" :model="formConfig" label-width="120px" label-position="left"
-          label-suffix="：">
-
-          <el-form-item prop="name" label="规格名称">
-            <el-input placeholder="请输入规格名称" v-model="formConfig.name" />
-          </el-form-item>
-
-          <el-form-item prop="order" label="排序">
-            <el-input-number :min="1" :max="10000" v-model="formConfig.order" />
-          </el-form-item>
-
-          <el-form-item prop="status" label="状态">
-            <el-switch :active-value="1" :inactive-value="0" v-model="formConfig.status" />
-          </el-form-item>
-
-          <el-form-item prop="default" label="规格值">
-            <TagInput v-model="formConfig.default" />
-          </el-form-item>
-
-        </el-form>
-      </drawer-model>
+      <SkusModel ref="formDrawerRef" :title="drawerType" :create="onOk" :update="onUpdate" />
 
     </el-card>
   </div>
@@ -78,21 +56,12 @@
 import { ref, onMounted } from 'vue';
 
 import ListHeader from '@/components/ListHeader/index.vue';
-import DrawerModel from '@/components/DrawerModel/index.vue';
-import TagInput from '@/components/TagInput/index.vue';
+import SkusModel from './components/SkusModel.vue';
 
-import {
-  getSkusList,
-  addSkus,
-  updateSkus,
-  deleteSkus,
-  updateSkusStatus
-} from '@/api/shop';
+import { getSkusList, addSkus, updateSkus, deleteSkus, updateSkusStatus } from '@/api/shop';
 import useTable from '@/hooks/useTable';
-import useForm from '@/hooks/useForm';
 
 // 规格列表
-
 const skus = ref([]);
 
 // 弹框列表
@@ -134,34 +103,10 @@ const {
   }
 });
 
-// 表单相关配置
-const {
-  formRef,
-  formConfig,
-  rules,
-  resetForm
-} = useForm({
-  formData: {
-    id: 0,
-    name: '',
-    status: 1,
-    order: 50,
-    default: ''
-  },
-  rules: {
-    name: [
-      { required: true, message: '请输入规格名称', trigger: 'blur' }
-    ],
-    default: [
-      { required: true, message: '请输入规格值', trigger: 'blur' }
-    ]
-  }
-});
-
 // 新增规格
 const handleAddSkus = () => {
   drawerType.value = 'add';
-  resetForm({
+  formDrawerRef.value.handleResetForm({
     name: '', status: 1, order: 50, default: ''
   });
   formDrawerRef.value.open();
@@ -175,49 +120,13 @@ const handleDeleteAll = () => {
 // 更新规格
 const handleSkusUpdate = item => {
   drawerType.value = 'update';
-  resetForm(item);
+  formDrawerRef.value.handleResetForm(item);
   formDrawerRef.value.open();
 };
 
 // 删除规格
 const handleSkusDelete = item => {
   onDelete?.({ ids: [item.id] });
-}
-
-const handleOk = () => {
-  formRef.value.validate(valid => {
-
-    if (!valid) return false;
-
-    formDrawerRef.value.showLoading();
-
-    // 添加
-    if (drawerType.value === 'add') {
-
-      onOk?.({
-        name: formConfig.name,
-        status: formConfig.status,
-        order: formConfig.order,
-        default: formConfig.default
-      });
-
-    }
-    // 更新
-    else {
-
-      onUpdate?.({
-        id: formConfig.id,
-        name: formConfig.name,
-        status: formConfig.status,
-        order: formConfig.order,
-        default: formConfig.default
-      });
-
-    }
-
-    formDrawerRef.value.close();
-
-  });
 }
 
 // 挂在获取列表

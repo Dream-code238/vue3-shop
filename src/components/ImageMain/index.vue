@@ -2,7 +2,7 @@
  * @Author: 一路向阳 tt_sunzhenfeng@163.com
  * @Date: 2024-04-24 13:53:56
  * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
- * @LastEditTime: 2024-04-26 23:46:51
+ * @LastEditTime: 2024-04-29 23:29:49
  * @FilePath: \shop-admin\src\pages\Other\components\imageMain.vue
  * @Description: 分类图片内容
 -->
@@ -44,10 +44,14 @@ import {
 
 import useTable from '@/hooks/useTable';
 
-defineProps({
+const props = defineProps({
   checked: {
     type: Boolean,
     default: false
+  },
+  max: {
+    type: Number,
+    default: 1
   }
 });
 
@@ -102,9 +106,9 @@ const handleUploadSuccess = () => initLoadList();
 const checkedImage = computed(() => imageList.value.filter(item => item.checked));
 const emit = defineEmits(['update']);
 const handleCheckImage = item => {
-  if (item.checked && checkedImage.value.length > 1) {
+  if (item.checked && checkedImage.value.length > props.max) {
     item.checked = false
-    return toast(`最多只能选中1张`, 'error')
+    return toast(`最多只能选中${props.max}张`, 'error')
   }
   emit('update', item);
 };

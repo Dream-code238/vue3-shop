@@ -1,3 +1,11 @@
+<!--
+ * @Author: 一路向阳 tt_sunzhenfeng@163.com
+ * @Date: 2024-04-28 10:32:04
+ * @LastEditors: 一路向阳 tt_sunzhenfeng@163.com
+ * @LastEditTime: 2024-05-10 18:44:16
+ * @FilePath: \shop-admin\src\components\TagInput\index.vue
+ * @Description: 标签输入框
+-->
 <template>
   <el-tag v-for="tag in dynamicTags" :key="tag" class="mx-1" closable :disable-transitions="false"
     @close="handleClose(tag)">
@@ -11,36 +19,37 @@
 </template>
 
 <script setup>
-import { nextTick, ref } from 'vue'
+import { nextTick, ref } from 'vue';
 
 const props = defineProps({
   modelValue: String
-})
-const emit = defineEmits(["update:modelValue"])
+});
+
+const emit = defineEmits(["update:modelValue"]);
 
 const inputValue = ref('')
-const dynamicTags = ref(props.modelValue ? props.modelValue.split(',') : [])
-const inputVisible = ref(false)
-const InputRef = ref()
+const dynamicTags = ref(props.modelValue ? props.modelValue.split(',') : []);
+const inputVisible = ref(false);
+const InputRef = ref();
 
 const handleClose = (tag) => {
-  dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1)
-  emit("update:modelValue", dynamicTags.value.join(","))
+  dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1);
+  emit("update:modelValue", dynamicTags.value.join(","));
 }
 
 const showInput = () => {
-  inputVisible.value = true
+  inputVisible.value = true;
   nextTick(() => {
-    InputRef.value.input.focus()
+    InputRef.value.input.focus();
   })
 }
 
 const handleInputConfirm = () => {
   if (inputValue.value) {
-    dynamicTags.value.push(inputValue.value)
-    emit("update:modelValue", dynamicTags.value.join(","))
+    dynamicTags.value.push(inputValue.value);
+    emit("update:modelValue", dynamicTags.value.join(","));
   }
-  inputVisible.value = false
-  inputValue.value = ''
+  inputVisible.value = false;
+  inputValue.value = '';
 }
 </script>
